@@ -24,7 +24,7 @@ var scenePlay = new Phaser.Class({
         this.load.image("Musuh2", "images/Musuh2.png");
         this.load.image("Musuh3", "images/Musuh3.png");
         this.load.image("MusuhBos", "images/MusuhBos.png");
-        this.load.audio("snd_shoot", "audio/music_menu.mp3");
+        this.load.audio("snd_shoot", "audio/fx_shoot.mp3");
         this.load.audio("snd_explode", "audio/fx_explode.mp3");
         this.load.audio("snd_play", "audio/music_play.mp3");
     },

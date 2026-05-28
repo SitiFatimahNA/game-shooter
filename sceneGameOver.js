@@ -21,13 +21,26 @@ var sceneGameOver = new Phaser.Class({
         this.load.audio("snd_touchchooter", "audio/fx_touch.mp3");
     },
     create: function () {
-        // --- KUNCI PENGAMAN MUTLAK: Paksa sistem audio mengikuti sakelar global ---
         this.sound.stopAll();
+    
+    // Inisialisasi suara touch
+    this.snd_touch = this.sound.add('snd_touchchooter');
+    
+    // Putar musik game over
+    if (this.registry.get('musicOn') === true) {
+        this.sound.play("snd_gameover", { loop: false, volume: 0.5 });
+    }
 
-        // Hanya putar backsound game over jika status music di menu utama adalah ON (True)
-        if (this.registry.get('musicOn') === true) {
-            this.sound.play("snd_gameover", { loop: false, volume: 0.5 }); // loop false agar hanya terputar sekali (sound fail)
+    // --- 2. FUNGSI HELPER SUARA ---
+    const playClick = () => {
+        if (this.registry.get('soundOn')) {
+            // Pastikan audio konteks berjalan
+            if (this.sound.context.state === 'suspended') {
+                this.sound.context.resume();
+            }
+            this.snd_touch.play();
         }
+    };
         // Tampilkan Tampilan Visual Game Over
         let bg = this.add.image(game.canvas.width / 2, game.canvas.height / 2, "BGPlay");
         bg.setDisplaySize(game.canvas.width, game.canvas.height);
@@ -44,26 +57,29 @@ var sceneGameOver = new Phaser.Class({
             fontFamily: 'Arial Black, Arial', fontSize: '36px', color: '#ffcc00', stroke: '#000000', strokeThickness: 3
         }).setOrigin(0.5);
 
-        let btnReplay = this.add.image(game.canvas.width / 2, game.canvas.height / 2 + 150, "ButtonPlay").setScale(0.8);
-        btnReplay.setInteractive();
+        let btnReplay = this.add.image(game.canvas.width / 2, game.canvas.height / 2 + 150, "ButtonPlay").setScale(0.8).setInteractive();
+        let btnMenu = this.add.image(game.canvas.width / 2, game.canvas.height / 2 + 300, "ButtonMenu").setScale(0.7).setInteractive();
 
-        let btnMenu = this.add.image(game.canvas.width / 2, game.canvas.height / 2 + 300, "ButtonMenu").setScale(0.7);
-        btnMenu.setInteractive();
+    // Event Replay
 
         btnReplay.on('pointerover', () => { btnReplay.setScale(0.9); });
         btnReplay.on('pointerout', () => { btnReplay.setScale(0.8); });
         btnMenu.on('pointerover', () => { btnMenu.setScale(0.8); });
         btnMenu.on('pointerout', () => { btnMenu.setScale(0.7); });
 
-        btnReplay.on('pointerdown', () => {
-            this.sound.stopByKey("snd_gameover"); 
-            this.scene.start("scenePlay");
-        });
+        // Event Replay
+    btnReplay.on('pointerdown', () => {
+        playClick(); // Mainkan suara saat klik
+        this.sound.stopByKey("snd_gameover"); 
+        this.scene.start("scenePlay");
+    });
 
-        btnMenu.on('pointerdown', () => {
-            this.sound.stopByKey("snd_gameover");
-            this.scene.start("SceneMenu");
-        });
+    // Event Menu
+    btnMenu.on('pointerdown', () => {
+        playClick(); // Mainkan suara saat klik
+        this.sound.stopByKey("snd_gameover");
+        this.scene.start("SceneMenu");
+    });
     },
     update: function () {},
 });

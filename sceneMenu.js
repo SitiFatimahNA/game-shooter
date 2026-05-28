@@ -68,17 +68,14 @@ var SceneMenu = new Phaser.Class({
 
         // --- 4. TOMBOL PLAY ---
         buttonPlay.on('pointerdown', () => {
-        
-
-            // Kriteria Gabungan: Sound klik hanya bunyi jika Music ON dan Sound ON
-            if (this.registry.get('soundOn') && this.registry.get('musicOn')) {
-                if (this.snd_touch) this.snd_touch.play();
-            }
-            
-            // Saat pindah scene, kecilkan volume ke 0 (Jangan di-stop agar state data aman)
-            if (this.bgMusic) this.bgMusic.setVolume(0);
-            this.scene.start('scenePilihHero');
-        }, this);
+    // Ubah menjadi hanya cek soundOn saja
+    if (this.registry.get('soundOn')) {
+        if (this.snd_touch) this.snd_touch.play();
+    }
+    
+    if (this.bgMusic) this.bgMusic.setVolume(0);
+    this.scene.start('scenePilihHero');
+}, this);
 
         // --- 5. LOGIKA & TOMBOL SOUND ON/OFF (SFX) ---
         let currentSoundTexture = this.registry.get('soundOn') ? 'ButtonSoundOn' : 'ButtonSoundOff';
@@ -91,12 +88,13 @@ var SceneMenu = new Phaser.Class({
             this.registry.set('soundOn', isSoundOn);
             this.btnSound.setTexture(isSoundOn ? 'ButtonSoundOn' : 'ButtonSoundOff');
             
-            // Aturan Gabungan: Sound menyala hanya jika Music ON dan Sound ON
-            if (isSoundOn && this.registry.get('musicOn')) {
-                if (this.snd_touch) this.snd_touch.play();
+            // Perbaikan: Selalu cek apakah sound baru saja dinyalakan
+            // Jika user baru menyalakan sound, berikan feedback suara
+            if (isSoundOn && this.snd_touch) {
+                this.snd_touch.play();
             }
         }, this);
-
+        // --- 6. LOGIKA & TOMBOL MUSIC ON/OFF (BGM) ---
         // --- 6. LOGIKA & TOMBOL MUSIC ON/OFF (BGM) ---
         let currentMusicTexture = this.registry.get('musicOn') ? 'ButtonMusicOn' : 'ButtonMusicOff';
         this.btnMusic = this.add.image(X_POSITION.RIGHT - 140, Y_POSITION.TOP + 60, currentMusicTexture).setInteractive().setScale(0.8);
@@ -108,14 +106,13 @@ var SceneMenu = new Phaser.Class({
             this.registry.set('musicOn', isMusicOn);
             this.btnMusic.setTexture(isMusicOn ? 'ButtonMusicOn' : 'ButtonMusicOff');
 
-            // Music OFF = volume 0, Music ON = volume 0.5
             if (this.bgMusic) {
                 this.bgMusic.setVolume(isMusicOn ? 0.5 : 0);
             }
             
-            // Efek klik tombol mematuhi aturan suara gabungan
-            if (this.registry.get('soundOn') && isMusicOn) {
-                if (this.snd_touch) this.snd_touch.play();
+            // Perbaikan: Tambahkan trigger suara touch agar terdengar saat tombol ini diklik
+            if (this.registry.get('soundOn') && this.snd_touch) {
+                this.snd_touch.play();
             }
         }, this);
     },
